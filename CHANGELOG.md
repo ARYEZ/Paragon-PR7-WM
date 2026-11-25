@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- **Open in PR7-HX** for binary files: File > Open in PR7-HX on a binary file compare, and in a folder compare's
+  menu for binary files, when PR7-HX is installed (both files open there, ready for its File Compare).
+- A message box asked through `_ask("say")` always goes through `_say`, whatever the answers hold.
+- The family list (`family.py`) knows the four newest Paragon apps: PR7-HX (hex editor), PR7-DB (SQLite browser),
+  PR7-UN (uninstaller) and PR7-LN (launcher), so links between the apps and the PR7-U offer find them.
+
 ## 0.1.0
 
 - First release: file and folder compare that works the way WinMerge works.

@@ -152,6 +152,45 @@ def test_binary_files(window, tmp_path):
     page = window.compare_files(a, b)
     assert page.binary_note.text() == "BINARY FILES ARE DIFFERENT" and not page.split.isVisibleTo(page)
     assert not window.acts["copy_right"].isEnabled()
+    window.answers["find"] = lambda app: None                        # PR7-HX not installed: nothing offered
+    window._sync()
+    assert not window.acts["open_hx"].isEnabled()
+    opened = []
+    window.answers["find"] = {"PR7-HX": "C:\\PR7-HX\\PR7-HX.exe"}.get
+    window.answers["launch_hx"] = lambda paths: opened.append(paths) or True
+    window._sync()
+    assert window.acts["open_hx"].isEnabled()
+    window.acts["open_hx"].trigger()
+    assert opened == [[a, b]]                                         # both files, to compare their bytes there
+
+
+def test_binary_files_in_a_folder_compare_open_in_pr7hx(window, tmp_path):
+    L, R = tmp_path / "L", tmp_path / "R"
+    L.mkdir()
+    R.mkdir()
+    (L / "app.bin").write_bytes(b"MZ\0\1")
+    (R / "app.bin").write_bytes(b"MZ\0\2")
+    (L / "notes.txt").write_text("a\n")
+    (R / "notes.txt").write_text("b\n")
+    page = window.compare_paths(str(L), str(R))
+    opened = []
+    window.answers["find"] = {"PR7-HX": "PR7-HX.exe"}.get
+    window.answers["launch_hx"] = lambda paths: opened.append(paths) or True
+    page.select("app.bin")
+    window._folder_menu(page, page.view.rect().center())
+    act = next(a for a in window.last_menu.actions() if a.text() == "Open in PR7-HX")
+    act.trigger()
+    assert opened == [[str(L / "app.bin"), str(R / "app.bin")]]
+    page.select("notes.txt")                                          # a text file: WM compares it itself
+    window._folder_menu(page, page.view.rect().center())
+    assert "Open in PR7-HX" not in [a.text() for a in window.last_menu.actions()]
+
+
+def test_say_goes_through_say_even_with_an_answer(window):
+    window.answers["say"] = lambda kind, text: window.heard.append((kind, text))
+    window.heard = []
+    window._ask("say", ("info", "hello"))
+    assert window.heard == [("info", "hello")] and ("info", "hello") in window.said
 
 
 def test_identical_files_say_so(window, tmp_path):

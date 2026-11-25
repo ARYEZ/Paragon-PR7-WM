@@ -13,7 +13,7 @@ from PySide6.QtGui import QAction, QActionGroup, QKeySequence
 from PySide6.QtWidgets import (QApplication, QFileDialog, QFrame, QHBoxLayout, QInputDialog, QLabel, QMainWindow,
                                QMenu, QMessageBox, QStackedWidget, QTabWidget, QVBoxLayout, QWidget)
 
-from . import __version__, compare, diff, family, finish, settings, theme, widgets
+from . import __version__, compare, diff, family, finish, folders, settings, theme, widgets
 from .dialogs import OpenDialog, OptionsDialog, load_options
 from .folder_page import SHOW, FolderPage
 from .panes import FilePage, colours
@@ -146,6 +146,8 @@ class MainWindow(QMainWindow):
         self._act(m, "Save Right", lambda: self.save_side("right"), None, "save_right")
         self._act(m, "Save Right As…", lambda: self.save_side("right", as_new=True), None, "save_right_as")
         m.addSeparator()
+        self._act(m, "Open in PR7-HX", self.open_page_in_hex, None, "open_hx")
+        m.addSeparator()
         self._act(m, "Close", lambda: self.close_tab(self.tabs.currentIndex()), "Ctrl+W", "close")
         m.addSeparator()
         self._act(m, "Exit", self.close, "Alt+F4")
@@ -228,13 +230,13 @@ class MainWindow(QMainWindow):
 
     # ================================================================ asking
     def _ask(self, kind: str, payload=None):
-        if kind in self.answers:
-            a = self.answers[kind]
-            return a(payload) if callable(a) else a
-        if kind == "say":
+        if kind == "say":                    # always through _say (its answer takes (kind, text), not one payload)
             k, text = payload
             self._say(k, text)
             return None
+        if kind in self.answers:
+            a = self.answers[kind]
+            return a(payload) if callable(a) else a
         if kind == "confirm":
             return QMessageBox.question(self, "PR7-WM", payload) == QMessageBox.StandardButton.Yes
         if kind == "save_changes":           # (name) -> save / discard / cancel
@@ -591,10 +593,35 @@ class MainWindow(QMainWindow):
             a.setEnabled(bool(p))
             a = m.addAction(f"Show {side.title()} in Folder", lambda p=p: self.show_in_folder(p))
             a.setEnabled(bool(p))
+        if it.result in (folders.BIN_IDENTICAL, folders.BIN_DIFFERENT) and self.hex_editor():
+            both = [p for p in (page.paths_of(it, "left"), page.paths_of(it, "right")) if p]
+            m.addSeparator()
+            m.addAction("Open in PR7-HX", lambda: self.open_in_hex(both))
         if self.answers.get("menu"):
             self.last_menu = m
             return
         m.exec(page.view.viewport().mapToGlobal(pos))
+
+    # ================================================================ the family's hex editor
+    def hex_editor(self) -> str | None:
+        """PR7-HX's exe when it's installed (tests: answers["find"] stands in for family.find)."""
+        find = self.answers.get("find", family.find)
+        return find("PR7-HX")
+
+    def open_in_hex(self, paths: list[str]) -> bool:
+        """Binary files go to PR7-HX, each in its own tab (its File Compare then shows the differing bytes)."""
+        if not paths or not self.hex_editor():
+            return False
+        run = self.answers.get("launch_hx")
+        if run:
+            return run(paths)
+        return family.launch("PR7-HX", paths)
+
+    def open_page_in_hex(self) -> bool:
+        page = self.page()
+        if not isinstance(page, FilePage):
+            return False
+        return self.open_in_hex([s.path for s in (page.doc.side("left"), page.doc.side("right")) if s.path])
 
     def open_externally(self, path: str | None):
         if not path:
@@ -741,6 +768,7 @@ class MainWindow(QMainWindow):
             a[f"save_{side}"].setEnabled(bool(f and page.doc.side(side).modified))
             a[f"save_{side}_as"].setEnabled(bool(f and not page.doc.binary))
         a["close"].setEnabled(page is not None)
+        a["open_hx"].setEnabled(bool(f and page.doc.binary and self.hex_editor()))
         a["undo"].setEnabled(bool(f and page.doc.undo_stack))
         a["redo"].setEnabled(bool(f and page.doc.redo_stack))
         for k in ("find", "find_next", "goto", "patch"):

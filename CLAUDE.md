@@ -40,6 +40,8 @@ it runs on Linux for tests. The owner writes Python; explain the why.
   unless it's one of them); one window per user (QLocalSocket, PR7-R's Windows fix) plus a QLockFile so Explorer's
   simultaneous launches hand over to the first; command-line modes never let an error escape (PR7-IS's lesson);
   `--selftest OUT.json` (CI runs it on the installed exe), `--register-menu`, `--unregister`.
+- Open in PR7-HX: binary files (File menu on a binary file compare, the folder menu on binary results) go to PR7-HX
+  via `family.launch` when `hex_editor()` finds it (tests: `answers["find"]`, `answers["launch_hx"]`).
 - Installer `installer/pr7wm.iss` (per user, AppId {2E52DD0D-51E7-40B7-B5C4-F0EDC2C9E8B9} permanent; tasks explorermenu
   (ticked, runs `--register-menu`; `--unregister` on uninstall), desktopicon); CI installs it,
   `tools/verify_install.py installed|uninstalled`. Spec: file details, no UPX, PyInstaller's bootloader built in CI,

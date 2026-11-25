@@ -32,6 +32,8 @@ PySide6.
 - **Binary files** are told apart and compared byte for byte.
 - **Generate Patch** (Tools) writes a unified diff.
 - A file changed by another program while it's open is offered for reloading.
+- **Binary files** open in PR7-HX (the family's hex editor) from the File menu or the folder compare's menu, when
+  it's installed.
 - **Explorer menu:** "Compare in PR7-WM" on files and folders. Select two items, or one now and another later
   (WinMerge's Select Left / Compare to).
 - **Command line:** WinMerge's switches: `PR7-WM.exe [/r] [/e] [/wl] [/wr] [/dl DESC] [/dr DESC] [/f FILTER] LEFT RIGHT`.
