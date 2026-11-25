@@ -215,4 +215,17 @@ QStatusBar {{ background: {TAB_FRAME}; border-top: 1px solid {PANEL_EDGE}; color
 QStatusBar QLabel {{ color: {TEXT_DIM}; font-size: 12px; padding: 0 10px; border-right: 1px solid {PANEL_EDGE}; }}
 QProgressBar {{ background: {WIDGET}; border: 1px solid {PANEL_EDGE}; border-radius: 4px; height: 8px; text-align: center; }}
 QProgressBar::chunk {{ background: {lit}; border-radius: 3px; }}
+
+QTabWidget::pane {{ border: 1px solid {PANEL_EDGE}; border-radius: 0 6px 6px 6px; background: {DOCK_TOP}; top: -1px; }}
+QTabBar {{ background: transparent; }}
+QTabBar::tab {{ background: {BACKGROUND}; color: {TEXT_DIM}; border: 1px solid {PANEL_EDGE}; border-bottom: none;
+  padding: 7px 16px; margin-right: 2px; border-top-left-radius: 5px; border-top-right-radius: 5px; font-size: 11px;
+  font-weight: 600; }}
+QTabBar::tab:selected {{ background: {DOCK_TOP}; color: {TEXT}; border-top: 2px solid {ACCENT}; }}
+QTabBar::tab:hover:!selected {{ color: {TEXT}; }}
+QSlider::groove:horizontal {{ height: 4px; background: {PANEL_EDGE}; border-radius: 2px; }}
+QSlider::sub-page:horizontal {{ background: {lit}; border-radius: 2px; }}
+QSlider::handle:horizontal {{ width: 14px; height: 14px; margin: -6px 0; border-radius: 7px; background: #1C1B20;
+  border: 2px solid {ACCENT}; }}
+QSlider::handle:horizontal:hover {{ border-color: {GLOW}; }}
 """

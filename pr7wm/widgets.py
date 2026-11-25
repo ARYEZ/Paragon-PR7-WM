@@ -322,6 +322,30 @@ def _icon_path(name: str) -> QPainterPath:
     elif name == "refresh":        # PR7-SM
         p.moveTo(19.5, 12); p.arcTo(QRectF(4.5, 4.5, 15, 15), 0, 300); p.moveTo(19.5, 5.5); p.lineTo(19.5, 11)
         p.lineTo(14, 11)
+    elif name == "compare":        # PR7-WM: two pages side by side with an equals sign (PR7-FS's)
+        p.addRoundedRect(QRectF(2.5, 4, 7.5, 16), 1.2, 1.2); p.addRoundedRect(QRectF(14, 4, 7.5, 16), 1.2, 1.2)
+        p.moveTo(10.8, 10.5); p.lineTo(13.2, 10.5); p.moveTo(10.8, 13.5); p.lineTo(13.2, 13.5)
+    elif name == "diff_prev":      # PR7-WM: up to the previous difference
+        p.moveTo(6, 14); p.lineTo(12, 8); p.lineTo(18, 14); p.moveTo(5, 19); p.lineTo(19, 19)
+    elif name == "diff_next":      # PR7-WM: down to the next difference
+        p.moveTo(6, 10); p.lineTo(12, 16); p.lineTo(18, 10); p.moveTo(5, 5); p.lineTo(19, 5)
+    elif name == "copy_right":     # PR7-WM: copy this difference to the right
+        p.addRoundedRect(QRectF(2.5, 5, 7, 14), 1, 1); p.moveTo(11, 12); p.lineTo(21, 12)
+        p.moveTo(17, 8); p.lineTo(21, 12); p.lineTo(17, 16)
+    elif name == "copy_left":      # PR7-WM: copy this difference to the left
+        p.addRoundedRect(QRectF(14.5, 5, 7, 14), 1, 1); p.moveTo(13, 12); p.lineTo(3, 12)
+        p.moveTo(7, 8); p.lineTo(3, 12); p.lineTo(7, 16)
+    elif name == "folders":        # PR7-WM: compare folders
+        for dx in (0, 6):
+            p.moveTo(2.5 + dx, 8); p.lineTo(7 + dx, 8); p.lineTo(8.5 + dx, 10); p.lineTo(15.5 + dx, 10)
+            p.lineTo(15.5 + dx, 19 - dx / 2); p.lineTo(2.5 + dx, 19 - dx / 2); p.closeSubpath()
+    elif name == "gear":           # PR7-WM: options (PR7-FS's)
+        import math
+        p.addEllipse(QRectF(9, 9, 6, 6))
+        for i in range(8):
+            a = math.radians(i * 45)
+            p.moveTo(12 + 6.2 * math.cos(a), 12 + 6.2 * math.sin(a)); p.lineTo(12 + 9 * math.cos(a), 12 + 9 * math.sin(a))
+        p.addEllipse(QRectF(5.8, 5.8, 12.4, 12.4))
     elif name == "chart":
         p.moveTo(3.5, 20.5); p.lineTo(20.5, 20.5); p.moveTo(4, 16); p.lineTo(9, 10); p.lineTo(13, 13.5); p.lineTo(20, 5)
     elif name == "app":            # a program: a window with its title bar
