@@ -48,21 +48,24 @@ def test_collect_one_then_another(window, tmp_path):
     assert page.doc.left.path == a and page.doc.right.path == b and settings.get("pending_left") == ""
 
 
-def test_hand_over_reaches_the_window(window, tmp_path, monkeypatch):
-    from PySide6.QtCore import QCoreApplication
-    a, b = files(tmp_path)
-    monkeypatch.setattr(app, "server_name", lambda: "pr7wm-test-" + str(os.getpid()))
-    assert app.listen(window) is not None
-    import threading
-    got = []
-    t = threading.Thread(target=lambda: got.append(app.hand_over({"args": [a, b]})))
-    t.start()
+def test_a_second_launch_hands_over(window, tmp_path, qapp):
+    """A second PR7-WM (its own process, as when Explorer starts it again) opens its compare in this window."""
+    import subprocess
+    import sys
     import time
-    deadline = time.monotonic() + 10           # the message is read on this (the GUI) thread: keep its events going
-    while time.monotonic() < deadline and not (window.tabs.count() and not t.is_alive()):
-        QCoreApplication.processEvents()
-        t.join(0.01)
-    assert got == [True] and window.page().doc.right.path == b
+    a, b = files(tmp_path)
+    assert app.listen(window) is not None
+    code = ("import sys; sys.path.insert(0, sys.argv[1]); from PySide6.QtCore import QCoreApplication; "
+            "q = QCoreApplication([]); from pr7wm import app; "
+            "sys.exit(0 if app.hand_over({'args': sys.argv[2:]}, 3000) else 1)")
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    proc = subprocess.Popen([sys.executable, "-c", code, root, a, b])
+    deadline = time.time() + 20
+    while (not window.tabs.count() or proc.poll() is None) and time.time() < deadline:
+        qapp.processEvents()
+        time.sleep(0.01)
+    assert proc.wait(5) == 0
+    assert window.page().doc.left.path == a and window.page().doc.right.path == b
     window.instance_server.close()
 
 
