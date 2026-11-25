@@ -57,12 +57,11 @@ def test_hand_over_reaches_the_window(window, tmp_path, monkeypatch):
     got = []
     t = threading.Thread(target=lambda: got.append(app.hand_over({"args": [a, b]})))
     t.start()
-    for _ in range(200):
+    import time
+    deadline = time.monotonic() + 10           # the message is read on this (the GUI) thread: keep its events going
+    while time.monotonic() < deadline and not (window.tabs.count() and not t.is_alive()):
         QCoreApplication.processEvents()
-        if window.tabs.count():
-            break
         t.join(0.01)
-    t.join(5)
     assert got == [True] and window.page().doc.right.path == b
     window.instance_server.close()
 
