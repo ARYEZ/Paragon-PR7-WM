@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- The family list (`family.py`) knows the three newest Paragon apps: PR7-HW (hardware information), PR7-BK
+  (backups) and PR7-TM (terminal), so links between the apps and the PR7-U offer find them.
+
 ## 0.2.0
 
 - **Open in PR7-HX** for binary files: File > Open in PR7-HX on a binary file compare, and in a folder compare's
